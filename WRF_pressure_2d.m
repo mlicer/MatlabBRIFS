@@ -9,7 +9,7 @@ if iRead
     
     if exist(matfile)
         load(matfile)
-        disp('filtering...')
+        disp('filtering....')
         Phf = removeWRFLowFrequencies(MSLP);
     else
         [time,lon_wrf,lat_wrf,MSLP] = readWRFnc(strdate,['/home/rissaga/new_setup/Archive/Outputs/WRF/' strdate '/'],'/home/mlicer/BRIFSverif/plots/WRF/');

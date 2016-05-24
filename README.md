@@ -1,2 +1,1 @@
-# BRIFSverification
 # MatlabBRIFS

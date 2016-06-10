@@ -87,16 +87,21 @@ MSLP(isnan(MSLP))=Missval;
 % generate pressure wave of appropriate dimensions for different parameters:
 % wave duration in hours:
 waveDuration = 6;
+% lateral width of pressureWave in degrees:
+lateralWidth =1;
 
 for theta=0:10:90;
-    for cg = 25:1:35;
+% for theta=50:50;
+    for cg = 50:10:100;
+%     for cg = 32:32;
         pressureWaveFrequency = 1/1000.;
         for pressureWaveAmplitude = 3;
             
             % generate the wave:
             disp([theta,cg,pressureWaveAmplitude])
             pressureWave = generateArtificialPressureField(time_roms(tt_0_48)/86400.,...
-                squeeze(lon_wrf(1,:)),squeeze(lat_wrf(:,1))',theta, cg,pressureWaveFrequency,pressureWaveAmplitude,waveDuration);
+                squeeze(lon_wrf(1,:)),squeeze(lat_wrf(:,1))',theta, cg,pressureWaveFrequency,...
+                pressureWaveAmplitude,waveDuration,lateralWidth);
             
             % add 1013 hPa and permute to get the correct dimensions for
             % NetCDF writing:
@@ -106,9 +111,12 @@ for theta=0:10:90;
             
             % Write netcdf file
 
-            fname_out=[dirname_roms_in '/roms_BRIFS_frc_c' num2str(cg) ...
-                '_a' num2str(pressureWaveAmplitude) '_t' num2str(theta) '.nc']
-            disp([' Create ROMS forcing file ' fname_out]);
+            fname_out=[dirname_roms_in '/BRIFS_frc_c' num2str(cg) ...
+                '_a' num2str(pressureWaveAmplitude) '_t' num2str(theta) '.nc'];
+            
+%             fname_out=[dirname_roms_in '/romsBRIFS_frc_c' num2str(cg) ...
+%                 '_a' num2str(pressureWaveAmplitude) '_t' num2str(theta) '.nc'];            
+            disp([' Creating ROMS forcing file ' fname_out '...']);
             
             % define dimensions / variables / attributes:
             
@@ -140,6 +148,10 @@ for theta=0:10:90;
             ncwriteatt(fname_out,'pressure_wave_amplitude','long_name','pressure wave amplitude');
             ncwriteatt(fname_out,'pressure_wave_amplitude','units','hPa');
             
+            nccreate(fname_out, 'pressure_wave_lateral_width');
+            ncwriteatt(fname_out,'pressure_wave_lateral_width','long_name','pressure wave lateral width');
+            ncwriteatt(fname_out,'pressure_wave_lateral_width','units','degrees_arc');            
+            
             nccreate(fname_out, 'Pair','Dimensions',{'lon',size(lon_wrf,2),'lat',size(lon_wrf,1),'ocean_time',length(tt_0_48)});
             ncwriteatt(fname_out,'Pair','long_name','Air pressure at 2 m');
             ncwriteatt(fname_out,'Pair','units','hPa');
@@ -160,6 +172,7 @@ for theta=0:10:90;
             ncwrite(fname_out,'theta',theta)
             ncwrite(fname_out,'pressure_wave_frequency',pressureWaveFrequency)
             ncwrite(fname_out,'pressure_wave_amplitude',pressureWaveAmplitude)
+            ncwrite(fname_out,'pressure_wave_lateral_width',lateralWidth)
             
             ncwrite(fname_out,'Pair',pressureWave)
             

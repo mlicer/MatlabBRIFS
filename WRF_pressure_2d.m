@@ -1,5 +1,5 @@
 
-iRead=false;
+iRead=true;
 
 if iRead
     clear
@@ -9,10 +9,10 @@ if iRead
     
     if exist(matfile)
         load(matfile)
-        disp('filtering....')
+        disp('filtering...')
         Phf = removeWRFLowFrequencies(MSLP);
     else
-        [time,lon_wrf,lat_wrf,MSLP] = readWRFnc(strdate,['/home/rissaga/new_setup/Archive/Outputs/WRF/' strdate '/'],'/home/mlicer/BRIFSverif/plots/WRF/');
+        [time,lon_wrf,lat_wrf,MSLP] = readWRFnc(strdate,['/home/rissaga/new_setup/Archive/Outputs/WRF/' strdate '_hind/'],'/home/mlicer/BRIFSverif/plots/WRF/');
         Phf = removeWRFLowFrequencies(MSLP);
     end
     
@@ -23,7 +23,7 @@ lonmax = max(max(lon_wrf));
 latmin = min(min(lat_wrf));
 latmax = max(max(lat_wrf));
 
-startdate = datenum('2006061421','yyyymmddHH');
+startdate = datenum('2006061514','yyyymmddHH');
 enddate = datenum('2006061613','yyyymmddHH');
 [~,idx_start] = min(abs(startdate - time));
 [~,idx_end] = min(abs(enddate - time));

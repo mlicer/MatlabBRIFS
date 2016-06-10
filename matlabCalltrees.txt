@@ -1,0 +1,66 @@
+MATLAB CODES call structure:
+
+NUMERICAL PRESSURE WAVE FORCING FOR ROMS:
+1    0   : * create_WRF_frc_for_ROMS_numExp         -> create_WRF_frc_for_ROMS_numExp.m
+63   43  :   | generateArtificialPressureField      -> /home/mlicer/BRIFSverif/matlabFunctions/smooth2a.m
+64   44  :     | othercolor
+65   45  :     | smooth2a
+
+ANALYZE ALL NUMERICAL EXPERIMENTS AND CREATE (theta,cf) matrices and stations.locations elevations graphs:
+1    0   : * analyzeROMSnumExp   -> analyzeROMSnumExp.m
+extractROMSnumExp
+
+ANALYZE A PARTICULAR NUMERICAL experiment:
+1    0   : * ROMS_analyze_numexp   -> ROMS_analyze_numexp.m
+extractROMSnumExp
+
+Analyze a particular actual Rissaga event:
+1    0   : * ROMS_analyze_numexp   -> ROMS_analyze_numexp.m
+extractROMSnumExp
+
+Plot sea level time series from ROMS outputs at a given date. Compare
+%  SSH from ROMS to available observations of sea surface elevation.
+1    0   : * plot_sealevel_ROMS_BRIFS_OBS           -> plot_sealevel_ROMS_BRIFS_OBS.m
+2    1   : | plot_sealevel_ROMS_BRIFS_OBS           -> WRF_ROMS_OBS_data_analysis.m
+3    1   : | plot_sealevel_ROMS_BRIFS_OBS           -> get_SOCIB_logo.m
+4    1   : | plot_sealevel_ROMS_BRIFS_OBS           -> plotSeaLevelsObsROMS.m
+5    1   : | plot_sealevel_ROMS_BRIFS_OBS           -> readCurrentProfilerObservations.m
+6    1   : | plot_sealevel_ROMS_BRIFS_OBS           -> readSeaLevelObservations.m
+7    1   : | plot_sealevel_ROMS_BRIFS_OBS           -> readTideGaugeObservations.m
+8    1   : | plot_sealevel_ROMS_BRIFS_OBS           -> removeLowFrequencies.m
+69   43  :   | WRF_ROMS_OBS_data_analysis           -> basicStatistics.m
+70   43  :   | WRF_ROMS_OBS_data_analysis           -> removeROMSLowFrequencies.m
+71   44  :     | fft_h
+72   45  :     | basicStatistics
+73   46  :       | naninterp
+74   47  :     | removeROMSLowFrequencies
+75   48  :   | get_SOCIB_logo
+76   49  :   | plotSeaLevelsObsROMS
+77   50  :     | romsAxis
+78   51  :   | readCurrentProfilerObservations      -> mergeDataStructures.m
+79   51  :   | readCurrentProfilerObservations      -> readCurrentProfilerObs.m
+80   52  :     | cropObservationTimeWindow
+81   53  :     | mergeDataStructures
+82   54  :     | readCurrentProfilerObs
+83   55  :   | readSeaLevelObservations
+84   56  :     | readSeaLevelObs
+85   57  :   | readTideGaugeObservations
+86   58  :     | readTideGaugeObs
+87   59  :   | removeLowFrequencies
+
+%  Plot atmospheric pressure time series from WRF outputs at a given date.
+1    0   : * plot_pressure_WRF_BRIFS_OBS            -> plot_pressure_WRF_BRIFS_OBS.m
+2    1   : | plot_pressure_WRF_BRIFS_OBS            -> dasp.m
+3    1   : | plot_pressure_WRF_BRIFS_OBS            -> define_colors.m
+4    1   : | plot_pressure_WRF_BRIFS_OBS            -> get_SOCIB_logo.m
+5    1   : | plot_pressure_WRF_BRIFS_OBS            -> readPressureObservations.m
+67   44  :   | define_colors
+68   45  :   | get_SOCIB_logo
+69   46  :   | readPressureObservations             -> mergeDataStructures.m
+70   46  :   | readPressureObservations             -> readBarometerObs.m
+71   47  :     | cropObservationTimeWindow
+72   48  :     | mergeDataStructures
+73   49  :     | readBarometerObs
+
+WRF_OBS_data_analysis.m:
+  plotPgraphs

@@ -1,4 +1,4 @@
-function plot_sealevel_ROMS_BRIFS_OBS(strdate,strbf,dirname_out,dirname_plots)
+function plot_sealevel_ROMS_BRIFS_OBS(modeOper, strdate,strbf,dirname_out,dirname_plots)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  function plot_sealevel_ROMS_BRIFS_OBS(strdate,strbf,dirname_out,dirname_plots)
 %
@@ -7,6 +7,7 @@ function plot_sealevel_ROMS_BRIFS_OBS(strdate,strbf,dirname_out,dirname_plots)
 %  
 %
 %  Input arguments:
+%     modeOper: 'oper' or 'hind' (operational or hindcast)
 %     strdate: YYYYMMDD
 %     strbf: 'bestfit' if best fit ROMS simulation needs to be considered
 %     dirname_out: directory with ROMS output files for that date
@@ -66,20 +67,32 @@ if ~exist([dirname_plots 'ROMS_OBS_stations_' strdate '.mat'])
     end
     
     if strcmp(strbf,'bestfit')
-        filename_parent=[dirname_out '/roms_BRIFS_parent_bf_' strdate '_his.nc'];
-        filename_child=[dirname_out '/roms_BRIFS_child_bf_' strdate '_his.nc'];
+        filename_parent=[dirname_out '/roms_BRIFS_parent_bf_' strdate '_' modeOper '_his.nc'];
+        filename_child=[dirname_out '/roms_BRIFS_child_bf_' strdate '_' modeOper '_his.nc'];
     else
-        filename_parent=[dirname_out '/roms_BRIFS_parent_' strdate '_his.nc'];
-        filename_child=[dirname_out '/roms_BRIFS_child_' strdate '_his.nc'];
+        filename_parent=[dirname_out '/roms_BRIFS_parent_' strdate '_' modeOper '_his.nc'];
+        filename_child=[dirname_out '/roms_BRIFS_child_' strdate '_' modeOper '_his.nc'];
     end
     
     if exist(filename_parent)
         disp(['   Reading parent model file ' filename_parent ' ...']);
+        
         lon_parent=nc_varget(filename_parent,'lon_rho');
         lat_parent=nc_varget(filename_parent,'lat_rho');
+        
         time_parent=nc_varget(filename_parent,'ocean_time')/(3600*24)+datenum(1968,5,23);
         nt_parent=length(time_parent);
+        
         zeta_parent=nc_varget(filename_parent,'zeta');
+        bathy_parent=nc_varget(filename_parent,'h');
+
+        lon_u_parent=nc_varget(filename_parent,'lon_u');
+        lat_u_parent=nc_varget(filename_parent,'lat_u');
+        lon_v_parent=nc_varget(filename_parent,'lon_v');
+        lat_v_parent=nc_varget(filename_parent,'lat_v');
+        
+        ubar_parent=nc_varget(filename_parent,'ubar');
+        vbar_parent=nc_varget(filename_parent,'vbar');
     else
         disp(['   ERROR: File ' filename_parent ' not found']);
         return
@@ -92,8 +105,11 @@ if ~exist([dirname_plots 'ROMS_OBS_stations_' strdate '.mat'])
         time_child=nc_varget(filename_child,'ocean_time')/(3600*24)+datenum(1968,5,23);
         nt_child=length(time_child);
         zeta_child=nc_varget(filename_child,'zeta');
+    save([dirname_plots 'ROMS_OBS_zeta_child_' strdate '.mat'],'zeta_child')
+        
     else
         disp(['   WARNING: Filename ' filename_child ' not found']);
+        return
     end
     
     % Selected locations for parent model
@@ -123,7 +139,7 @@ if ~exist([dirname_plots 'ROMS_OBS_stations_' strdate '.mat'])
     lat1(12) = 39.848501;lon1(12) =  3.673371;
     
     %%
-    lon2(1)=3.824;lat2(1)=39.995;    % Finer grid Off Ciutadella
+    lon2(1)=3.815;lat2(1)=39.995;    % Finer grid Off Ciutadella
     lon2(2)=3.825340;lat2(2)=39.997172; % outer harbour
     lon2(3)=3.831283;lat2(3)=39.999884; % mid harbour: AWAC location
     lon2(4)=3.8353;lat2(4)=40.0015;  % Ciutadella inner harbor
@@ -154,8 +170,8 @@ if ~exist([dirname_plots 'ROMS_OBS_stations_' strdate '.mat'])
     end
     
     % Interpolate child model at Ciutadella port entrance and inside the harbor
-    disp('   Interpolate child model fields to selected locations ...')
     if exist(filename_child)
+    disp('   Interpolate child model fields to selected locations ...')
         P2=NaN*zeros(nt_child,length(lon2));
         P2_bf=NaN*zeros(nt_child,length(lon2));
         for kl=1:length(lon2)
@@ -163,7 +179,8 @@ if ~exist([dirname_plots 'ROMS_OBS_stations_' strdate '.mat'])
         end
     end
     
-%     clear zeta_parent zeta_child
+    disp('SIZE OF zeta_child:')
+    size(zeta_child)
     save([dirname_plots 'ROMS_OBS_stations_' strdate '.mat'])
     
 else
@@ -190,7 +207,7 @@ if ~exist('currentProfilersHF')
     currentProfilersHF=[];
 end
 plotSeaLevelsObsROMS(lon1,lat1,lon2,lat2,seaLevelsHF,currentProfilersHF,filename_parent,time_parent,filename_child,time_child,P1,P2,dirname_plots,strdate,strbf)
-return
+
 roms_matdir=dirname_plots;
 wrf_matdir = '/home/mlicer/BRIFSverif/plots/WRF/';
 

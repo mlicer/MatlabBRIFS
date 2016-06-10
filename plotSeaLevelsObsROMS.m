@@ -104,15 +104,17 @@ try
     plot(currentProfilersHF.ciutadella.time,currentProfilersHF.ciutadella.WTR_PRE,'r',time_child,removeROMSLowFrequencies(P2(:,4)),'b',...
         time_child,P2(:,3),'c',...
         time_child,P2(:,2),'g',...
-        time_child,P2(:,1),'k')
-    legend('OBS','ROMS INNER HARBOUR','ROMS MID HARBOUR','ROMS OUTER HARBOUR','ROMS OUT OF HARBOUR','location','southwest')
+        time_child,P2(:,1),'k',...
+        time_parent,P1(:,3),'m','linewidth',2)
+    legend('OBS','ROMS INNER HARBOUR','ROMS MID HARBOUR','ROMS OUTER HARBOUR','CHILD ROMS OUT OF HARBOUR','PARENT ROMS OUT OF HARBOUR','location','southwest')
     romsAxis
 catch
     plot(time_child,P2(:,4),'b',...
         time_child,P2(:,3),'c',...
         time_child,P2(:,2),'g',...
-        time_child,P2(:,1),'k')    
-    legend('ROMS INNER HARBOUR','ROMS MID HARBOUR','ROMS OUTER HARBOUR','ROMS OUT OF HARBOUR','location','southwest')
+        time_child,P2(:,1),'k',...
+        time_parent,P1(:,3),'m','linewidth',2)    
+    legend('ROMS INNER HARBOUR','ROMS MID HARBOUR','ROMS OUTER HARBOUR','CHILD ROMS OUT OF HARBOUR','PARENT ROMS OUT OF HARBOUR','location','southwest')
     romsAxis
 end
 
@@ -137,22 +139,28 @@ print(pngname,'-dpng','-r300')
 close all
 figure;clf;hold on
 try
-    namesH = {'ROMS INNER HARBOUR','ROMS MID HARBOUR','ROMS OUTER HARBOUR','ROMS OUT OF HARBOUR'}
-    plot(3.831217,max(currentProfilersHF.ciutadella.WTR_PRE),'or')
-    text(3.831217,max(currentProfilersHF.ciutadella.WTR_PRE),'AWAC MID HARBOUR')
-    plot(lon2(1:4),max(removeROMSLowFrequencies(P2(:,:))),'-ob')
-    for k=1:length(lon2)
-        text(lon2(k),max(removeROMSLowFrequencies(P2(:,k))),namesH{length(lon2)-k+1})
+    plot(3.831217,max(abs(currentProfilersHF.ciutadella.WTR_PRE)),'or')
+    text(3.831217,max(abs(currentProfilersHF.ciutadella.WTR_PRE)),'AWAC MID HARBOUR')
+    namesH = {'ROMS INNER HARBOUR','ROMS MID HARBOUR','ROMS OUTER HARBOUR','CHILD ROMS OUT OF HARBOUR', 'PARENT ROMS OUT OF HARBOUR'}
+    plotlons = [lon1(3),lon2(1:4)]
+    heights = [max(abs(P1(:,3))),max(abs(P2(:,:)))]
+    plot(plotlons,heights,'-ob','linewidth',2)
+    for k=1:length(plotlons)
+        text(plotlons(k),heights(k),namesH{length(plotlons)-k+1})
     end
+    xlim([min(plotlons)-0.01,max(plotlons)+0.01])
 catch
-    namesH = {'ROMS INNER HARBOUR','ROMS MID HARBOUR','ROMS OUTER HARBOUR','ROMS OUT OF HARBOUR'}
-    plot(lon2(1:4),max(removeROMSLowFrequencies(P2(:,:))),'-ob')
-    for k=1:length(lon2)
-        text(lon2(k),max(removeROMSLowFrequencies(P2(:,k))),namesH{length(lon2)-k+1})
+    namesH = {'ROMS IN HARBOUR','ROMS MID HARBOUR','ROMS OUTER HARBOUR','CHILD ROMS OUT OF HARBOUR', 'PARENT ROMS OUT OF HARBOUR'}
+    plotlons = [lon1(3),lon2(1:4)]
+    heights = [max(abs(P1(:,3))),max(abs(P2(:,:)))]
+    plot(plotlons,heights,'-ob','linewidth',2)
+    for k=1:length(plotlons)
+        text(plotlons(k),heights(k),namesH{length(plotlons)-k+1},'fontsize',18)
     end
+    xlim([min(plotlons)-0.01,max(plotlons)+0.01])
 end
-fntsize=16
-title({'Maximum elevation along the Ciutadella Harbor Inlet';['during Rissaga: ' strdate]},'fontsize',fntsize)
+fntsize=18
+title({'Maximum absolute elevation anomaly along the Ciutadella Harbor Inlet';['during Rissaga: ' strdate]},'fontsize',fntsize)
 xlabel('Longitude E','fontsize',fntsize)
 ylabel('Max SSH [m]','fontsize',fntsize)
 set(gca, 'fontsize',fntsize)

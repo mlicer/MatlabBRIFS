@@ -1,4 +1,4 @@
-function pressureWave = generateArtificialPressureField(dates,lons,lats,thetaDEG, cg,pressureWaveFrequency,pressureWaveAmplitude,waveDuration,lateralWidth);
+function pressureWave = generateArtificialPressureFieldTEST(dates,lons,lats,thetaDEG, cg,pressureWaveFrequency,pressureWaveAmplitude,waveDuration);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  function pressureWave = generateArtificialPressureField(dates,lons,lats,theta, cg,pressureWaveFrequency,pressureWaveAmplitude)
 %
@@ -10,14 +10,14 @@ function pressureWave = generateArtificialPressureField(dates,lons,lats,thetaDEG
 %   -- dates: 1D vector of matlab datenumbers from WRF netCDF
 %   -- lons: 1D vector of ROMS grid longitudes [deg]
 %   -- lats: 1D vector of ROMS grid latitudes [deg]
-%   -- thetaDEG: the nautical (compass) angle of propagation [deg] of the wave relatively to the CIUTADELLA
-%   harbour. thetaDEG = 0: the wave travels north. thetaDEG = 90: the wave travels east.
+%   -- theta: the nautical (compass) angle of propagation [deg] of the wave relatively to the CIUTADELLA
+%   harbour. theta = 0: the wave travels north. theta = 90: the wave travels east.
 %   -- cg: wave propagation group (and phase) velocity [km/h]. cg = 30 is
 %   close to Proudman resonance value over the Mallorca shelf.
 %   -- pressureWaveFrequency: the frequency of the pressure wave [s-1]
-%   Frequency value 1/1000 suits observations.
+%   Frequency value 1/3000 suits observations.
 %   -- pressureWaveAmplitude: the amplitude of the pressure wave [hPa]
-%   Amplitude value 5.0 suits observations.
+%   Amplitude value 1.0 suits observations.
 %
 % Output:
 %   -- pressureWave: nlons x nlats x ntimes array of the traveling pressure
@@ -30,7 +30,7 @@ function pressureWave = generateArtificialPressureField(dates,lons,lats,thetaDEG
 % Last modification: 29-Apr-2016
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-iPlot=false;
+iPlot=true;
 
 if iPlot
     % read coastline shapefile:
@@ -65,8 +65,6 @@ if true
     % point of passage of the pressure wave - CIUTADELLA HARBOUR:
     latCIUTADELLA = 40;
     lonCIUTADELLA = 3.8;
-%     latCIUTADELLA = 40.35;
-%     lonCIUTADELLA = 3.34;    
     
     % the NAUTICAL angle of propagation (direction of propagation: 0=N, 90 = E) of the pressure wave:
     theta = thetaDEG*pi/180;
@@ -78,7 +76,7 @@ if true
     omega = 2*pi*pressureWaveFrequency;
     
     % lateral width of pressureWave in degrees:
-%     lateralWidth = 2;
+    lateralWidth = 1;
     perpendicularWidth = lateralWidth / cos(pi/2-theta);
     
     % wave duration in seconds:
@@ -96,11 +94,6 @@ if true
     % end of wave packet:
     endOfWavePacket = @(x,t,t0) frontOfWavePacket(x,t-waveDuration/24.,t0);
 
-    % Alcudia line:
-    lonALCUDIA = 3.1254;
-    latALCUDIA = 39.8199;
-    alcudiaLine = @(x) -0.711*(x-lonALCUDIA) + latALCUDIA;
-    
     % initialize pressure wave:
     pressureWave = zeros([nlats, nlons, ntimes]);
     
@@ -118,8 +111,7 @@ if true
             [r,c,v] = find(lats2 < axisOfPropagation(lons2)+0.5*perpendicularWidth & ...
                 lats2 > axisOfPropagation(lons2)-0.5*perpendicularWidth & ...
                 lats2 < frontOfWavePacket(lons2,dates(t),dates(1)) & ...
-                lats2 > endOfWavePacket(lons2,dates(t),dates(1)));% & ...
-%                 lats2 > alcudiaLine(lons2));
+                lats2 > endOfWavePacket(lons2,dates(t),dates(1)));
         elseif thetaDEG > 90 && thetaDEG<180
             [r,c,v] = find(lats2 < axisOfPropagation(lons2)+0.5*perpendicularWidth & ...
                 lats2 > axisOfPropagation(lons2)-0.5*perpendicularWidth & ...
@@ -152,8 +144,8 @@ end
 % tracer point - just to check velocities:
 %     latPoint = latmin;
 if iPlot
-    plotstep=30;
-    for t = 1:plotstep:ntimes
+    
+    for t = 1:ntimes
         
         try
             delete(h1)
@@ -161,15 +153,12 @@ if iPlot
         catch
         end
         
-        h1=pcolor(lons2,lats2,pressureWave(:,:,t));shading flat
+        h1=surf(lons2,lats2,pressureWave(:,:,t));shading flat
         set(gca,'layer','bottom')        
         
-%         title(['Artificial pressure wave forcing for ROMS on date: ' datestr(dates(t),'yyyy mmm dd HH:MM')])
+        title(['Artificial pressure wave forcing for ROMS on date: ' datestr(dates(t),'yyyy mmm dd HH:MM')])
         colorbar
-%         colormap(othercolor('RdBu11'))
-        colormap(cbrewer('div','RdBu',1000))
-        
-%         colormap(jet)
+        colormap(othercolor('RdYlBu6'))
         caxis([-pressureWaveAmplitude pressureWaveAmplitude])
         xlim([lonmin lonmax])
         ylim([latmin latmax])
@@ -178,22 +167,21 @@ if iPlot
         pbaspect([diff([lonmin lonmax]) diff([latmin latmax]) 1])
         
 
+
+        
         grid on
         box on
         %         scatter(lonCIUTADELLA,latPoint,20,'filled')
         %         latPoint = latPoint + (cg * timestep/RE)*180/pi
 %         set(gca,'layer','top')
         % add coastline:
-        width=2;
+        width=0.75;
         h2 = geoshow([S.Lat], [S.Lon],'Color','black','LineWidth',width);
         set(gca,'layer','top')        
-        set(gca,'fontsize',18)        
         
         pause(0.001)
         pngname = ['ciutadella_p-wave_theta_' num2str(theta) '_frame_' datestr(dates(t),'yyyymmmddHHMM') '.png'];
-        print(gcf,pngname,'-dpng','-r300')
-        pngname = ['ciutadella_p-wave_theta_' num2str(theta) '_frame_' datestr(dates(t),'yyyymmmddHHMM') '.eps'];
-        print(gcf,pngname,'-depsc','-r300')        
+        print(gcf,pngname,'-dpng','-r72')
     end
 end
 

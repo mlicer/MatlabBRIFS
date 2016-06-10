@@ -1,4 +1,4 @@
-function plot_pressure_WRF_BRIFS_OBS(strdate,dirname_out,dirname_plots)
+function plot_pressure_WRF_BRIFS(strdate,dirname_out,dirname_plots)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  function plot_pressure_WRF_BRIFS(strdate,dirname_out,dirname_plots)
 %
@@ -11,17 +11,11 @@ function plot_pressure_WRF_BRIFS_OBS(strdate,dirname_out,dirname_plots)
 %
 % Author: Baptiste Mourre - SOCIB
 %         bmourre@socib.es
-%         Matjaz Licer - NIB MBS
-%         matjaz.licer@mbss.org
 % Date of creation: May-2015
-% Last modification: 12-Apr-2016
+% Last modification: 12-Jun-2015
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-disp([' Script plot_pressure_WRF_BRIFS_OBS executed on ' datestr(now)]);
-
-% load colormap:
-load('rt_colormaps.mat')
-myCmap=rt_colormaps.barbara;
+disp([' Script plot_pressure_WRF_BRIFS executed on ' datestr(now)]);
 
 mydate=datenum(strdate,'yyyymmdd');
 
@@ -43,10 +37,6 @@ if length(filelist)==0
     return
 end
 
-
-
-
-%%
 for kf=1:length(filelist)
     
     fname=[dirname_out '/' filelist(kf).name];
@@ -84,11 +74,6 @@ MSLP_masked(XLAND==1)=NaN;
 PSFC_masked=PSFC;
 PSFC_masked(XLAND==1)=NaN;
 
-% save([dirname_plots 'WRF_MSLP2D_' strdate '.mat'],'MSLP','T2','lon_wrf','lat_wrf','time')
-
-%% read available observations on specified date strdate:
-barometers = readPressureObservations(strdate)
-
 %load color_gravonde
 load med_coastline_nolakes.dat
 define_colors
@@ -109,32 +94,20 @@ lon(8)=2.7;lat(8)=39.5;    % Palma
 lon(9)=3.6;lat(9)=39.9;    % Middle of the channel
 lon(10)=3.8;lat(10)=39.98; % Ciutadella
 lon(11)=4.4;lat(11)=39.84; % Maó
-lon(12)=2.7;lat(12)=41.1;  % Close to Cabo Begur
-lon(13)=3.0;lat(13)=39.4;  % Sarapita
-lon(14)=1.3;lat(14)=39.0;  % Sant Antoni
-lon(15)=3.1;lat(15)=39.9;  % Pollensa
-lon(16)=4.3;lat(16)=39.9;  % Lamola
-lon(17)=3.2;lat(17)=39.7;  % Colonia St Pere
-lon(18)=2.4;lat(18)=39.5;  % Andratx
+lon(12)=2.7;lat(12)=41.1;    % Close to Cabo Begur
 
-Name(:, 1) ='African coast 1       ';
-Name(:, 2) ='African coast 2       ';
-Name(:, 3) ='Middle Ibiza-Africa   ';
-Name(:, 4) ='Middle Mallorca-Africa';
-Name(:, 5) ='Middle Menorca-Africa ';
-Name(:, 6) ='Ibiza                 ';
-Name(:, 7) ='Middle Ibiza-Mallorca ';
-Name(:, 8) ='Palma de Mallorca     ';
-Name(:, 9) ='Middle of Channel     ';
+Name(:, 1)='African coast 1       ';
+Name(:, 2)='African coast 2       ';
+Name(:, 3)='Middle Ibiza-Africa   ';
+Name(:, 4)='Middle Mallorca-Africa';
+Name(:, 5)='Middle Menorca-Africa ';
+Name(:, 6)='Ibiza                 ';
+Name(:, 7)='Middle Ibiza-Mallorca ';
+Name(:, 8)='Palma de Mallorca     ';
+Name(:, 9)='Middle of Channel     ';
 Name(:, 10)='Ciutadella            ';
 Name(:, 11)='Mao                   ';
 Name(:, 12)='Near Cabo Begur       ';
-Name(:, 13)='Sarapita              ';
-Name(:, 14)='Sant Antoni           ';
-Name(:, 15)='Pollensa              ';
-Name(:, 16)='Lamola                ';
-Name(:, 17)='Colonia Sant Pere     ';
-Name(:, 18)='Andratx               ';
 
 Name_simple(:, 1)='P01';
 Name_simple(:, 2)='P02';
@@ -148,24 +121,12 @@ Name_simple(:, 9)='P09';
 Name_simple(:, 10)='P10';
 Name_simple(:, 11)='P11';
 Name_simple(:, 12)='P12';
-Name_simple(:, 13)='P13';
-Name_simple(:, 14)='P14';
-Name_simple(:, 15)='P15';
-Name_simple(:, 16)='P16';
-Name_simple(:, 17)='P17';
-Name_simple(:, 18)='P18';
 
 % Separate today and tomorrow figures
 tt_today=find(time-mydate>=0 & time-mydate<=1);
 tt_tomorrow=find(time-mydate>=1 & time-mydate<=2);
 nt_today=length(tt_today);
 nt_tomorrow=length(tt_tomorrow);
-
-% testing time params --mlicer:
-% tt_today=find(time-mydate>=0 & time-mydate<=0.01);
-% tt_tomorrow=find(time-mydate>=1 & time-mydate<=1.01);
-% nt_today=length(tt_today);
-% nt_tomorrow=length(tt_tomorrow);
 
 CAXIS_0_24=[nanmin(nanmin(MSLP_masked(tt_today,:))) nanmax(nanmax(MSLP_masked(tt_today,:)))];
 CAXIS_24_48=[nanmin(nanmin(MSLP_masked(tt_tomorrow,:))) nanmax(nanmax(MSLP_masked(tt_tomorrow,:)))];
@@ -175,11 +136,6 @@ display('Create atmospheric pressure maps 0-24h ...')
 fname_avi_0_24=[dirname_plots, '/forecast_', strdate, '_0_24.avi'];
 aviobj = avifile(fname_avi_0_24, 'quality', 30);
 fig=figure;
-
-
-
-if false % DISABLE TIMESERIES PLOTS (takes forever) --mlicer
-    
 for kt=1:nt_today
     disp(['   kt=' num2str(kt) ' over ' num2str(nt_today)]);
     pcolor(lon_wrf,lat_wrf,double(squeeze(MSLP(tt_today(kt),:,:))))
@@ -189,10 +145,10 @@ for kt=1:nt_today
     cbar=colorbar('fontsize',12,'position',[0.25 0.5 0.03 0.3]);
     xlabel(cbar, '     (hPa)', 'fontsize',12)
     shading flat
-    set(gca, 'fontsize', 12)
+    set(gca,  'fontsize', 12)
     %colormap(colorred)
-    colormap(myCmap)
-    [cs,bh]=contour(lon_wrf,lat_wrf,double(squeeze(MSLP_masked(tt_today(kt),:,:))),[980:1:1030]','w','linewidth',1);
+    colormap(rt_colormaps.barbara)
+    [cs,bh]=contour(lon_wrf,lat_wrf,double(squeeze(MSLP_masked(tt_today(kt),:,:))),[980:1:1030]','w','linewidth',1); 
     ht=clabel(cs,bh,'labelspacing',200,'fontsize',8,'color','w');
     caxis(CAXIS_0_24);
     text(-2,41.6,datestr(time(tt_today(kt)),'dd-mmm-yyyy HH:MM UTC'),'fontsize',12, 'color', 'k','backgroundcolor', 'w');
@@ -223,8 +179,8 @@ for kt=1:nt_tomorrow
     shading flat
     set(gca,  'fontsize', 12)
     %colormap(colorred)
-    colormap(myCmap)
-    [cs,bh]=contour(lon_wrf,lat_wrf,double(squeeze(MSLP_masked(tt_tomorrow(kt),:,:))),[980:1:1030]','w','linewidth',1);
+    colormap(rt_colormaps.barbara)
+    [cs,bh]=contour(lon_wrf,lat_wrf,double(squeeze(MSLP_masked(tt_tomorrow(kt),:,:))),[980:1:1030]','w','linewidth',1); 
     ht=clabel(cs,bh,'labelspacing',200,'fontsize',8,'color','w');
     caxis(CAXIS_24_48);
     text(-2,41.5,datestr(time(tt_tomorrow(kt)),'dd-mmm-yyyy HH:MM UTC'), 'fontsize', 12, 'color', 'k','backgroundcolor', 'w')
@@ -232,7 +188,7 @@ for kt=1:nt_tomorrow
     M(kt)=getframe;
     clf
 end
-display(['Save movie atmospheric pressure maps 24-48h in file ' fname_avi_24_48])
+    display(['Save movie atmospheric pressure maps 24-48h in file ' fname_avi_24_48])
 if (nt_tomorrow>0)
     aviobj = addframe(aviobj,M);
     aviobj = close(aviobj);
@@ -240,8 +196,6 @@ if (nt_tomorrow>0)
 end
 close(fig)
 
-
-end % DISABLE TIMESERIES PLOTS (takes forever) --mlicer
 
 % Plot mean pressure map with point locations
 figure
@@ -254,8 +208,8 @@ cbar=colorbar;
 shading flat
 set(gca,  'fontsize', 15)
 %colormap(colorred)
-colormap(myCmap)
-[cs,bh]=contour(lon_wrf,lat_wrf,double(squeeze(nanmean(MSLP_masked(tt_today,:,:)))),[980:1:1030]','w','linewidth',2);
+colormap(rt_colormaps.barbara)
+[cs,bh]=contour(lon_wrf,lat_wrf,double(squeeze(nanmean(MSLP_masked(tt_today,:,:)))),[980:1:1030]','w','linewidth',2); 
 ht=clabel(cs,bh,'labelspacing',200,'fontsize',10,'color','w');
 plot(lon, lat, 'd', 'markersize', 3,'Color',grey, 'linewidth', 1)
 for k=[2:8 11 12]
@@ -272,15 +226,13 @@ xlabel('Longitude (degE)', 'fontsize', 15)
 ylabel('Latitude (degN)', 'fontsize', 15)
 title(['Mean sea level pressure (hPa) for ' datestr(mydate,'dd-mmm-yyyy')], 'fontsize', 15);
 % Add SOCIB logo
-axes('position',[0.68,0.12,0.08,0.08])
-imshow(im)
-set(gcf,'renderer','zbuffer');
-% printpspng([dirname_plots '/Map_locations_' strdate])
+ axes('position',[0.68,0.12,0.08,0.08])
+ imshow(im)
+ set(gcf,'renderer','zbuffer');     
+printpspng([dirname_plots '/Map_locations_' strdate])
 
-pngname = [dirname_plots '/BRIFS_mean_pressure_map_' strdate];
-print('-dpng','-r300',pngname)
 % Duplicate figure with new name
-% printpspng([dirname_plots '/BRIFS_mean_pressure_map_' strdate]);
+printpspng([dirname_plots '/BRIFS_mean_pressure_map_' strdate]);
 
 % Plot pressure time series at specified locations
 P_stations=NaN*zeros(nt,length(lon));
@@ -301,7 +253,7 @@ for ks=1:6
     ylim_min=min(P_stations(tt_48h, ks))-(max(P_stations(tt_48h,ks))-min(P_stations(tt_48h, ks)))/10;
     ylim_max=max(P_stations(tt_48h, ks))+(max(P_stations(tt_48h,ks))-min(P_stations(tt_48h, ks)))/10;
     ylim([ylim_min ylim_max]);
-    text(min(xlim)+diff(xlim)/100,max(ylim)-diff(ylim)/10,Name(:, ks)','Color','r','fontsize', 15);
+    text(min(xlim)+diff(xlim)/100,max(ylim)-diff(ylim)/10,Name_simple(:, ks)','Color','r','fontsize', 15);
     grid on
     %xlabel([datestr(max(time(tt_today)),'yyyy')], 'fontsize', 12)
     xlabel(['00:00 UTC                       00:00 UTC                        00:00 UTC' ], 'fontsize', 8)
@@ -310,124 +262,40 @@ for ks=1:6
     end
 end
 % Add SOCIB logo
-axes('position',[0.46,0.88,0.06,0.06])
-imshow(im)
-set(gcf,'renderer','zbuffer');
-saveas(gcf,[dirname_plots '/BRIFS_pressure_timeseries_P1_P6_' strdate],'png')
-
-% printpspng([dirname_plots '/MSLP_part1_' strdate]);
+ axes('position',[0.46,0.88,0.06,0.06])
+ imshow(im)
+ set(gcf,'renderer','zbuffer');     
+printpspng([dirname_plots '/MSLP_part1_' strdate]);
 
 % Duplicate figure with new name
-% printpspng([dirname_plots '/BRIFS_pressure_timeseries_P1_P6_' strdate]);
+printpspng([dirname_plots '/BRIFS_pressure_timeseries_P1_P6_' strdate]);
 
 figure('position', [0 0 1000 1000])
 for ks=7:12
     subplot(3,2,ks-6)
     plot(time(tt_48h), P_stations(tt_48h, ks),'Color',steel, 'linewidth', 1)
     set(gca, 'fontsize', 10)
-    set(gca,'XTick',(min(time(tt_48h)):0.25:max(time(tt_48h))));
+     set(gca,'XTick',(min(time(tt_48h)):0.25:max(time(tt_48h))));
     set(gca,'XTickLabel',{datestr(min(time(tt_48h)),'dd-mmm'),'','','',datestr(min(time(tt_48h)+1),'dd-mmm'),'','','',datestr(min(time(tt_48h)+2),'dd-mmm')});
     %datetick('x','dd-mmm')
-    ylim_min=min(P_stations(tt_48h, ks))-(max(P_stations(tt_48h,ks))-min(P_stations(tt_48h, ks)))/10;
+     ylim_min=min(P_stations(tt_48h, ks))-(max(P_stations(tt_48h,ks))-min(P_stations(tt_48h, ks)))/10;
     ylim_max=max(P_stations(tt_48h, ks))+(max(P_stations(tt_48h,ks))-min(P_stations(tt_48h, ks)))/10;
     ylim([ylim_min ylim_max]);
-    text(min(xlim)+diff(xlim)/100,max(ylim)-diff(ylim)/10,Name(:, ks)','Color','r','fontsize', 15);
+    text(min(xlim)+diff(xlim)/100,max(ylim)-diff(ylim)/10,Name_simple(:, ks)','Color','r','fontsize', 15);
     grid on
     %xlabel([datestr(max(time(tt_today)),'yyyy')], 'fontsize', 12)
     xlabel(['00:00 UTC                       00:00 UTC                        00:00 UTC' ], 'fontsize', 8)
-    if (ks==9)
+     if (ks==9)
         ylabel('Sea level pressure (hPa)', 'fontsize', 15)
     end
 end
 % Add SOCIB logo
-axes('position',[0.46,0.88,0.06,0.06])
-imshow(im)
-set(gcf,'renderer','zbuffer');
-saveas(gcf,[dirname_plots '/BRIFS_pressure_timeseries_P7_P12_' strdate],'png')
-% printpspng([dirname_plots '/MSLP_part2_' strdate]);
+ axes('position',[0.46,0.88,0.06,0.06])
+ imshow(im)
+ set(gcf,'renderer','zbuffer'); 
+printpspng([dirname_plots '/MSLP_part2_' strdate]);
 
 % Duplicate figure with new name
-% printpspng([dirname_plots '/BRIFS_pressure_timeseries_P7_P12_' strdate]);
+printpspng([dirname_plots '/BRIFS_pressure_timeseries_P7_P12_' strdate]);
 
-figure('position', [0 0 1000 1000])
-for ks=13:18
-    subplot(3,2,ks-12)
-    
-    % add observations to figures:
-    switch ks
-        case 13
-            if barometers.sarapita.dataExists
-                hold on
-                plot(barometers.sarapita.time, barometers.sarapita.AIR_PRE,'r', 'linewidth', 1)
-                xlim([min(time(tt_48h)),max(time(tt_48h))])
-            end
-        case 14
-            if barometers.santantoni.dataExists
-                hold on
-                plot(barometers.santantoni.time, barometers.santantoni.AIR_PRE,'r', 'linewidth', 1)
-                xlim([min(time(tt_48h)),max(time(tt_48h))])                
-            end
-        case 15
-            if barometers.pollensa.dataExists
-                hold on
-                plot(barometers.pollensa.time, barometers.pollensa.AIR_PRE,'r', 'linewidth', 1)
-                xlim([min(time(tt_48h)),max(time(tt_48h))])                
-            end
-        case 16
-            if barometers.lamola.dataExists
-                hold on
-                plot(barometers.lamola.time, barometers.lamola.AIR_PRE,'r', 'linewidth', 1)
-                xlim([min(time(tt_48h)),max(time(tt_48h))])                
-            end
-        case 17
-            if barometers.coloniasantpere.dataExists
-                hold on
-                plot(barometers.coloniasantpere.time, barometers.coloniasantpere.AIR_PRE,'r', 'linewidth', 1)
-                xlim([min(time(tt_48h)),max(time(tt_48h))])                
-            end
-        case 18
-            if barometers.andratx.dataExists
-                hold on
-                plot(barometers.andratx.time, barometers.andratx.AIR_PRE,'r', 'linewidth', 1)
-                xlim([min(time(tt_48h)),max(time(tt_48h))])                
-            end
-    end
-    
-    % add WRF:
-    plot(time(tt_48h), P_stations(tt_48h, ks),'Color',steel, 'linewidth', 1)
-        
-  title(['WRF (blue) vs OBS (red): ' datestr(mydate,'yyyy mm dd')])
-  set(gca, 'fontsize', 10)
-    set(gca,'XTick',(min(time(tt_48h)):0.25:max(time(tt_48h))));
-    set(gca,'XTickLabel',{datestr(min(time(tt_48h)),'dd-mmm'),'','','',datestr(min(time(tt_48h)+1),'dd-mmm'),'','','',datestr(min(time(tt_48h)+2),'dd-mmm')});
-    %datetick('x','dd-mmm')
-    ylim_min=min(P_stations(tt_48h, ks))-(max(P_stations(tt_48h,ks))-min(P_stations(tt_48h, ks)))/10;
-    ylim_max=max(P_stations(tt_48h, ks))+(max(P_stations(tt_48h,ks))-min(P_stations(tt_48h, ks)))/10;
-    ylim([ylim_min ylim_max]);
-    text(min(xlim)+diff(xlim)/100,max(ylim)-diff(ylim)/10,Name(:, ks)','Color','r','fontsize', 15);
-    
-    grid on
-    box on
-    %xlabel([datestr(max(time(tt_today)),'yyyy')], 'fontsize', 12)
-    xlabel(['00:00 UTC                       00:00 UTC                        00:00 UTC' ], 'fontsize', 8)
-    if (ks==15)
-        ylabel('Sea level pressure (hPa)', 'fontsize', 15)
-    end
-end
-% Add SOCIB logo
-axes('position',[0.46,0.88,0.06,0.06])
-imshow(im)
-set(gcf,'renderer','zbuffer');
-pngname = [dirname_plots '/BRIFS_pressure_timeseries_P13_P18_' strdate];
-saveas(gcf,[dirname_plots '/BRIFS_pressure_timeseries_P13_P18_' strdate],'png')
-print('-dpng','-r300',pngname)
-
-% printpspng([dirname_plots '/MSLP_part2_' strdate]);
-
-% Duplicate figure with new name
-% printpspng([dirname_plots '/BRIFS_pressure_timeseries_P7_P12_' strdate]);
-close all
-
-matfilename = [dirname_plots '/pressure_WRF-OBS_' strdate '.mat']
-save(matfilename,'lon','lat','Name','Name_simple','time','tt_48h','steel','mydate','im','P_stations','barometers')
-
+return
